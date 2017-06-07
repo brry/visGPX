@@ -7,97 +7,157 @@
 #' @seealso \code{\link{help}}, \code{\link{help}}
 #' @keywords aplot
 #' @importFrom plotKML readGPX
-#' @importFrom OSMscale earthDist
+#' @importFrom OSMscale earthDist pll pmap pointsMap projectPoints
+#' @importFrom berryFunctions movAv classify seqPal round0 lim0 checkFile addAlpha colPoints textField
+#' @importFrom leaflet %>% leaflet addTiles addCircleMarkers addCircles addPolylines addLabelOnlyMarkers labelOptions
+#' @importFrom graphics hist plot lines par
+#' @importFrom utils tail
 #' @export
 #' @examples
-#'
 #' file <- system.file("extdata/Dranse_2017-06-06.gpx", package="visGPX")
-#' visGPX(file)
+#' visGPX(file, threshold_na=13, plot_static=FALSE)
 #'
-#' @param file  GPX filename
-#' @param df    Optional data.frame with columns lon,lat,ele (num), time (POSIXct)
-#'              and runtime (num, in seconds).
-#'              DEFAULT: NULL (generated from \code{file})
-#' @param dummy Dummy
-#' @param \dots Further arguments passed to \code{\link{plot}}
+#' \dontrun{# Excluded from checks to reduce computing time (map download)
+#' dranse <- visGPX(file, threshold_na=13)
+#'
+#' # Exporting:
+#' pdf("dranse.pdf", height=5)
+#' visGPX(file, bgmap=dranse$bgmap) # speed up by re-using static map
+#' dev.off()
+#' htmlwidgets::saveWidget(dranse$map, "dranse.html")
+#' }
+#'
+#' @param file    GPX filename
+#' @param df      Optional data.frame with columns lon,lat,ele (num) + time (POSIXct)
+#'                DEFAULT: NULL (internally generated from \code{file})
+#' @param threshold_na Values above this speed are set to NA for smoothing.
+#'                Use e.g. 15 (kmh) for implausible values when walking.
+#'                DEFAULT: NA (ignored)
+#' @param smooth  Smoothing width passed to \code{berryFunctions::\link{movAv}}
+#'                for speed column. DEFAULT: 5
+#' @param plot_interactive Logical: plot leaflet map? DEFAULT: TRUE
+#' @param plot_static Logical: plot static graphs? DEFAULT: TRUE
+#' @param bgmap   Static background map from \code{OSMscale::\link{pointsMap}}.
+#'                Plotting is done faster if provided. DEFAULT: NULL
+#' @param mfrow   Multiple figures \link{par}ameter. DEFAULT: c(2,2)
+#' @param keeppar Logical: keep paramters of plot (to add to last panel /
+#'                outer margins)? DEFAULT: FALSE
+#' @param \dots   Further arguments passed to \code{OSMscale::\link{pointsMap}}
 #'
 visGPX <- function(
 file,
 df=NULL,
-dummy,
+threshold_na=NA,
+smooth=9,
+plot_interactive=TRUE,
+plot_static=TRUE,
+bgmap=NULL,
+mfrow=c(2,2),
+keeppar=FALSE,
 ...
 )
 {
-# check if plotKML is available:
-if(!requireNamespace("plotKML", quietly=TRUE))
-  stop("plotKML is not installed. Please first run  install.packages('plotKML')")
 
-# Read from file if df is not provided:
-if(!is.null(df))
+# Read from file if df is not provided ----
+if(is.null(df))
 {
+berryFunctions::checkFile(file)
 df <- plotKML::readGPX(file)
 df <- df$tracks[[1]][[1]]
 df$ele <- as.numeric(df$ele)
 df$time <- as.POSIXct(df$time, format="%Y-%m-%dT%H:%M:%SZ")
-df$runtime <- as.numeric(df$time - df$time[1])
 }
 
-warning("Dude, it's done.")
-return(NULL)
+# compute speed at each point ----
 
-# compute speed at each point:
-df$timediff <- c(0, as.numeric(diff(df$runtime))  )
-df$dist <- OSMscale::earthDist("lat", "lon", data=df, along=TRUE)
-
-
-#
-# d$km <- cumsum(d$dist)/1000 # Strecke
-# d$kmh <- d$dist/d$diff/1000*3600
-# d$kmh[1:11] <- 0
-#
-# hist(d$diff, breaks=40, col=4)
-# hist(d$diff[d$diff<10], breaks=40, col=4)
-# hist(d$dist, breaks=40, col=4)
-# hist(d$kmh, breaks=40, col=4)
-#
-# # Werte >10 km/h auf NA setzen:
-# d$kmh[d$kmh>10] <- NA
-# # Glätten (Mittelwert der halben Minute um Datenpunkt herum):
-# d$kmhglatt <- movAv(d$kmh, 12)
-# hist(d$kmhglatt, breaks=40, col=4)
-#
-#
-#
-#
-# # Streckenverlauf berechnen
-# d$dist <- distance(d$xm, d$ym, along=TRUE)
-# d$km <- cumsum(d$dist)/1000 # Strecke
-# kmmarker <- sapply(seq(1,38,1), function(x) which.min(abs(d$km - x)))
-#
-#
-# par(mar=c(0,0,0,0))
-# plot(map15t)
-# scaleBar(map15t, x=0.5, y=0.1, type="bar")
-# points(y~x, data=d, col="black", pch=16, cex=0.4)
-# colPoints(x,y,kmhglatt, data=d, zlab="km/h", legargs=list(mar=c(3,1,3,1), cex=2), pch=16, cex=0.3)
-# textField(d$x[kmmarker], d$y[kmmarker], seq(1,38,1), cex=0.3)
-#
-# #d$zeit2 <- as.numeric(d$time - min(d$time,na.rm=T))/3600
-# #d$zeit2[is.na(d$zeit2)] <- 0
-#
-#
-# # Verlaufsplots:
-# plot(d$km, d$kmh, type="l", las=1, xlab="Distanz [km]",
-#      ylab="Geschwindigkeit  [km/h]")
-# abline(v=seq(0,40,5), col=8)
-# plot(d$km, d$kmhglatt, type="l", las=1, xlab="Distanz [km]",
-#      ylab="Geschwindigkeit Geglättet  [km/h]")
-# abline(v=seq(0,40,5), col=8)
-# plot(d$time, d$kmh, type="l", las=1, xlab="Zeit [UTC (=GMT)]",
-#      ylab="Geschwindigkeit  [km/h]")#, xaxt="n")
-# #r <- range(d$time, na.rm=T)
-# #axis.POSIXct(1, at = seq(r[1], r[2], by = "hour"), format = "%H")
-#
+df$run_time_s <- as.numeric(df$time - df$time[1])
+df$run_time_s <- c(0, diff(df$run_time_s) )
+df$run_dist_m <- OSMscale::earthDist("lat", "lon", data=df, r=6371e3, along=TRUE)
+df$speed_kmh <- df$run_dist_m/df$run_time_s/1000*3600
+df$speed_kmh[1] <- 0
 
 
+# Smoothing speed ----
+
+# Set values >x km/h to NA:
+df$speed_NAs <- df$speed_kmh
+if(!is.na(threshold_na)) df$speed_NAs[df$speed_NAs>threshold_na] <- NA
+# Smoothing (average of values around point):
+df$speed_smooth_kmh <- berryFunctions::movAv(df$speed_NAs, width=smooth)
+
+# kilometer markers ----
+
+df$run_dist_cum <- cumsum(df$run_dist_m)/1000 # path lenght in km
+kms <- max(round(df$run_dist_cum))
+if(kms>=1)
+{
+kms <- seq(1,kms,1)
+kmmarker <- sapply(kms, function(x) which.min(abs(df$run_dist_cum - x)))
+}
+kmmarker
+
+avg <- tail(df$run_dist_cum,1)/as.numeric(difftime(tail(df$time,1), df$time[1], units="h"))
+avg <- round(avg,3)
+
+
+
+# Interactive map ----
+
+if(plot_interactive)
+{
+df$col <- seqPal(100)[classify(df$speed_smooth_kmh)$index]
+df$col[is.na(df$col)] <- "grey"
+df$display <- paste0(berryFunctions::round0(df$speed_kmh,2,2), " kmh <br>",
+                                  round0(df$run_dist_cum,2,2), " km")
+map <- leaflet(df) %>% addTiles() %>%
+       addPolylines(~lon, ~lat, color="white", weight=15, opacity=1) %>%
+       addCircleMarkers(~lon, ~lat, popup=~display, stroke=F, color=~col,
+                        fillOpacity=1, radius=6) %>%
+       #addPolylines(~lon, ~lat) %>%
+       addLabelOnlyMarkers(lng=df$lon[kmmarker], lat=df$lat[kmmarker],
+                           label=paste(kms,"km"), labelOptions=
+                           labelOptions(noHide=T,textsize="14px",textOnly=T))
+       # addCircles(~lon, ~lat, stroke=F, color=~col)
+#df_sf <- sf::st_as_sf(df, coords=c("lon","lat") )
+#mapview::mapview(df_sf, zcol="speed_smooth_kmh", color=NA)
+print(map)
+} else map=NA
+
+# Static plots ----
+
+if(plot_static)
+{
+# Speed over Distance and Time:
+op <- par(mfrow=mfrow, mgp=c(1.9, 0.7, 0), mar=c(3,4,2,0.5), las=1)
+plot(df$run_dist_cum, df$speed_kmh, type="l", ylim=lim0(df$speed_smooth_kmh),
+     xlab="Distance [km]", ylab="Speed  [km/h]", col="orange",
+     main="Speed over distance")
+lines(df$run_dist_cum, df$speed_smooth_kmh, lwd=3, col="blue")
+
+plot(df$time, df$speed_kmh, type="l", ylim=lim0(df$speed_smooth_kmh),
+     xlab="Time  [UTC (=GMT)]", ylab="Speed  [km/h]", col="blue",
+     main="Speed over time")
+
+# Histogram of speed:
+breaks <- seq(0, max(df$speed_kmh)+1, 0.5)
+hh <- hist(df$speed_smooth_kmh, breaks=breaks, plot=FALSE)
+hist(df$speed_kmh, breaks=breaks, col=addAlpha("orange"),
+     main=paste("Speed histogram, avg =",avg,"kmh"),
+     ylim=lim0(hh$counts), xlab="", ylab="")
+hist(df$speed_smooth_kmh, breaks=breaks, col=addAlpha("blue"), add=TRUE)
+
+# Static map:
+bgmap <- OSMscale::pointsMap("lat","lon", data=df, pch=NA, map=bgmap, ...)
+dfp <- OSMscale::projectPoints("lat","lon", data=df,
+                               from=OSMscale::pll(),
+                               to=OSMscale::pmap(bgmap)  )
+colPoints(dfp$x,dfp$y, df$speed_smooth_kmh, add=TRUE, y1=0.9, y2=1,
+          legargs=list(mar=0, labelpos=5), density=FALSE, zlab="")
+textField(dfp$x[kmmarker], dfp$y[kmmarker], paste(kms,"km"))
+
+if(!keeppar) par(op)
+} else bgmap=NA
+
+# Output ----
+return(invisible(list(map=map, df=df, average_speed_kmh=avg, bgmap=bgmap)))
 }

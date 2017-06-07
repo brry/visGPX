@@ -4,18 +4,36 @@
 \alias{visGPX}
 \title{Visualize GPX files}
 \usage{
-visGPX(file, df = NULL, dummy, ...)
+visGPX(file, df = NULL, threshold_na = NA, smooth = 9,
+  plot_interactive = TRUE, plot_static = TRUE, bgmap = NULL,
+  mfrow = c(2, 2), keeppar = FALSE, ...)
 }
 \arguments{
 \item{file}{GPX filename}
 
-\item{df}{Optional data.frame with columns lon,lat,ele (num), time (POSIXct)
-and runtime (num, in seconds).
-DEFAULT: NULL (generated from \code{file})}
+\item{df}{Optional data.frame with columns lon,lat,ele (num) + time (POSIXct)
+DEFAULT: NULL (internally generated from \code{file})}
 
-\item{dummy}{Dummy}
+\item{threshold_na}{Values above this speed are set to NA for smoothing.
+Use e.g. 15 (kmh) for implausible values when walking.
+DEFAULT: NA (ignored)}
 
-\item{\dots}{Further arguments passed to \code{\link{plot}}}
+\item{smooth}{Smoothing width passed to \code{berryFunctions::\link{movAv}}
+for speed column. DEFAULT: 5}
+
+\item{plot_interactive}{Logical: plot leaflet map? DEFAULT: TRUE}
+
+\item{plot_static}{Logical: plot static graphs? DEFAULT: TRUE}
+
+\item{bgmap}{Static background map from \code{OSMscale::\link{pointsMap}}.
+Plotting is done faster if provided. DEFAULT: NULL}
+
+\item{mfrow}{Multiple figures \link{par}ameter. DEFAULT: c(2,2)}
+
+\item{keeppar}{Logical: keep paramters of plot (to add to last panel /
+outer margins)? DEFAULT: FALSE}
+
+\item{\dots}{Further arguments passed to \code{OSMscale::\link{pointsMap}}}
 }
 \value{
 ReturnValue
@@ -24,9 +42,18 @@ ReturnValue
 Interactive Map from OSMtracker GPS tracks
 }
 \examples{
+file <- system.file("extdata/Dranse_2017-06-06.gpx", package="visGPX")
+visGPX(file, threshold_na=13, plot_static=FALSE)
 
-file <- system.file("extdata/Dranse_2017-06-06.gpx", package="OSMscale")
-visGPX(file)
+\dontrun{# Excluded from checks to reduce computing time (map download)
+dranse <- visGPX(file, threshold_na=13)
+
+# Exporting:
+pdf("dranse.pdf", height=5)
+visGPX(file, bgmap=dranse$bgmap) # speed up by re-using static map
+dev.off()
+htmlwidgets::saveWidget(dranse$map, "dranse.html")
+}
 
 }
 \seealso{
