@@ -87,7 +87,7 @@ df$speed_smooth_kmh <- berryFunctions::movAv(df$speed_NAs, width=smooth)
 
 # kilometer markers ----
 
-df$run_dist_cum <- cumsum(df$run_dist_m)/1000 # path lenght in km
+df$run_dist_cum <- cumsum(df$run_dist_m)/1000 # path length in km
 kms <- max(round(df$run_dist_cum))
 if(kms>=1)
 {
@@ -108,7 +108,8 @@ if(plot_interactive)
 df$col <- seqPal(100)[classify(df$speed_smooth_kmh)$index]
 df$col[is.na(df$col)] <- "grey"
 df$display <- paste0(berryFunctions::round0(df$speed_kmh,2,2), " kmh <br>",
-                                  round0(df$run_dist_cum,2,2), " km")
+                                  round0(df$run_dist_cum,2,2), " km <br>",
+                     df$time, "<br>", round(df$lat,6), ", ", round(df$lat,6))
 map <- leaflet(df) %>% addTiles() %>%
        addPolylines(~lon, ~lat, color="white", weight=15, opacity=1) %>%
        addCircleMarkers(~lon, ~lat, popup=~display, stroke=F, color=~col,
