@@ -15,6 +15,7 @@
 #' @export
 #' @examples
 #' file <- system.file("extdata/Dranse_2017-06-06.gpx", package="visGPX")
+#' # file <- "../../Sonstiges/2017-06-10_PORT.gpx"
 #' visGPX(file, threshold_na=13, plot_static=FALSE)
 #'
 #' \dontrun{# Excluded from checks to reduce computing time (map download)
@@ -109,7 +110,7 @@ df$col <- seqPal(100)[classify(df$speed_smooth_kmh)$index]
 df$col[is.na(df$col)] <- "grey"
 df$display <- paste0(berryFunctions::round0(df$speed_kmh,2,2), " kmh <br>",
                                   round0(df$run_dist_cum,2,2), " km <br>",
-                     df$time, "<br>", round(df$lat,6), ", ", round(df$lat,6))
+                     df$time, "<br>", round(df$lat,6), ", ", round(df$lon,6))
 map <- leaflet(df) %>% addTiles() %>%
        addPolylines(~lon, ~lat, color="white", weight=15, opacity=1) %>%
        addCircleMarkers(~lon, ~lat, popup=~display, stroke=F, color=~col,
