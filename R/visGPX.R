@@ -18,6 +18,9 @@
 #' # file <- "../../Sonstiges/2017-06-10_PORT.gpx"
 #' visGPX(file, threshold_na=13, plot_static=FALSE)
 #'
+#' file <- system.file("extdata/rad.gpx", package="visGPX")
+#' visGPX(file, plot_static=FALSE) # with waypoints
+#'
 #' \dontrun{# Excluded from checks to reduce computing time (map download)
 #' dranse <- visGPX(file, threshold_na=13)
 #'
@@ -64,9 +67,10 @@ if(is.null(df))
 {
 berryFunctions::checkFile(file)
 df <- plotKML::readGPX(file)
+wp <- df$waypoints
 df <- df$tracks[[1]][[1]]
 df$ele <- as.numeric(df$ele)
-df$time <- as.POSIXct(df$time, format="%Y-%m-%dT%H:%M:%SZ")
+df$time <- strptime(df$time, format="%Y-%m-%dT%H:%M:%SZ")
 }
 
 # compute speed at each point ----
@@ -111,6 +115,7 @@ df$col[is.na(df$col)] <- "grey"
 df$display <- paste0(berryFunctions::round0(df$speed_kmh,2,2), " kmh <br>",
                                   round0(df$run_dist_cum,2,2), " km <br>",
                      df$time, "<br>", round(df$lat,6), ", ", round(df$lon,6))
+
 map <- leaflet(df) %>% addTiles() %>%
        addPolylines(~lon, ~lat, color="white", weight=15, opacity=1) %>%
        addCircleMarkers(~lon, ~lat, popup=~display, stroke=F, color=~col,
@@ -122,6 +127,15 @@ map <- leaflet(df) %>% addTiles() %>%
        # addCircles(~lon, ~lat, stroke=F, color=~col)
 #df_sf <- sf::st_as_sf(df, coords=c("lon","lat") )
 #mapview::mapview(df_sf, zcol="speed_smooth_kmh", color=NA)
+
+if(!is.null(wp)) # add waypoints
+  {
+  wp$display <- paste0("waypoint:<br>", wp$link, "<br>",
+                       round(wp$lat,6), "\t", round(wp$lon,6),  "<br>",
+                       round(as.numeric(wp$ele),1), "m")
+  map <- map %>% addCircleMarkers(wp$lon, wp$lat, popup=wp$display, color="black")
+  }
+
 print(map)
 } else map=NA
 

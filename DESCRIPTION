@@ -1,7 +1,7 @@
 Package: visGPX
 Title: Visualize GPX Tracks in Interactive Map
-Version: 0.0.6
-Date: 2017-07-11
+Version: 0.0.7
+Date: 2017-07-15
 Imports: plotKML, OSMscale (>= 0.5.5), berryFunctions (>= 1.15.6), leaflet
 Author: Berry Boessenkool
 Maintainer: Berry Boessenkool <berry-b@gmx.de>

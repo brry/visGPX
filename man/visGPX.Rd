@@ -46,6 +46,9 @@ file <- system.file("extdata/Dranse_2017-06-06.gpx", package="visGPX")
 # file <- "../../Sonstiges/2017-06-10_PORT.gpx"
 visGPX(file, threshold_na=13, plot_static=FALSE)
 
+file <- system.file("extdata/rad.gpx", package="visGPX")
+visGPX(file, plot_static=FALSE) # with waypoints
+
 \dontrun{# Excluded from checks to reduce computing time (map download)
 dranse <- visGPX(file, threshold_na=13)
 
