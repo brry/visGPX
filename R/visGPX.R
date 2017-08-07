@@ -1,7 +1,7 @@
 #' Visualize GPX files
-#'
+#' 
 #' Interactive Map from OSMtracker GPS tracks
-#'
+#' 
 #' @return ReturnValue
 #' @author Berry Boessenkool, \email{berry-b@@gmx.de}, Jun 2017
 #' @seealso \code{\link{help}}, \code{\link{help}}
@@ -17,20 +17,20 @@
 #' file <- system.file("extdata/Dranse_2017-06-06.gpx", package="visGPX")
 #' # file <- "../../Sonstiges/2017-06-10_PORT.gpx"
 #' visGPX(file, threshold_na=13, plot_static=FALSE)
-#'
+#' 
 #' file <- system.file("extdata/rad.gpx", package="visGPX")
 #' visGPX(file, plot_static=FALSE) # with waypoints
-#'
+#' 
 #' \dontrun{# Excluded from checks to reduce computing time (map download)
 #' dranse <- visGPX(file, threshold_na=13)
-#'
+#' 
 #' # Exporting:
 #' pdf("dranse.pdf", height=5)
 #' visGPX(file, bgmap=dranse$bgmap) # speed up by re-using static map
 #' dev.off()
 #' htmlwidgets::saveWidget(dranse$map, "dranse.html")
 #' }
-#'
+#' 
 #' @param file    GPX filename
 #' @param df      Optional data.frame with columns lon,lat,ele (num) + time (POSIXct)
 #'                DEFAULT: NULL (internally generated from \code{file})
@@ -47,7 +47,7 @@
 #' @param keeppar Logical: keep paramters of plot (to add to last panel /
 #'                outer margins)? DEFAULT: FALSE
 #' @param \dots   Further arguments passed to \code{OSMscale::\link{pointsMap}}
-#'
+#' 
 visGPX <- function(
 file,
 df=NULL,
