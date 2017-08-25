@@ -9,4 +9,5 @@ Description: Read GPX track records and visualise them in an interactive map.
 License: GPL (>= 2)
 URL: https://github.com/brry/visGPX
 RoxygenNote: 6.0.1
+BugReports: https://github.com/brry/visGPX/issues
 
