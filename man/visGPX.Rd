@@ -4,7 +4,7 @@
 \alias{visGPX}
 \title{Visualize GPX files}
 \usage{
-visGPX(file, df = NULL, threshold_na = NA, smooth = 9,
+visGPX(file, df = NULL, element = 1, threshold_na = NA, smooth = 9,
   plot_interactive = TRUE, plot_static = TRUE, bgmap = NULL,
   mfrow = c(2, 2), keeppar = FALSE, ...)
 }
@@ -13,6 +13,8 @@ visGPX(file, df = NULL, threshold_na = NA, smooth = 9,
 
 \item{df}{Optional data.frame with columns lon,lat,ele (num) + time (POSIXct)
 DEFAULT: NULL (internally generated from \code{file})}
+
+\item{element}{Numeric: Element in GPX tracks list to be used. DEFAULT: 1}
 
 \item{threshold_na}{Values above this speed are set to NA for smoothing.
 Use e.g. 15 (kmh) for implausible values when walking.

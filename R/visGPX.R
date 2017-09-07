@@ -34,6 +34,7 @@
 #' @param file    GPX filename
 #' @param df      Optional data.frame with columns lon,lat,ele (num) + time (POSIXct)
 #'                DEFAULT: NULL (internally generated from \code{file})
+#' @param element Numeric: Element in GPX tracks list to be used. DEFAULT: 1
 #' @param threshold_na Values above this speed are set to NA for smoothing.
 #'                Use e.g. 15 (kmh) for implausible values when walking.
 #'                DEFAULT: NA (ignored)
@@ -51,6 +52,7 @@
 visGPX <- function(
 file,
 df=NULL,
+element=1,
 threshold_na=NA,
 smooth=9,
 plot_interactive=TRUE,
@@ -68,7 +70,7 @@ if(is.null(df))
 berryFunctions::checkFile(file)
 df <- plotKML::readGPX(file)
 wp <- df$waypoints
-df <- df$tracks[[1]][[1]]
+df <- df$tracks[[1]][[element]]
 df$ele <- as.numeric(df$ele)
 df$time <- strptime(df$time, format="%Y-%m-%dT%H:%M:%SZ")
 }
