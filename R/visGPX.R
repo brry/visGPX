@@ -9,7 +9,7 @@
 #' @importFrom plotKML readGPX
 #' @importFrom OSMscale earthDist pll pmap pointsMap projectPoints
 #' @importFrom berryFunctions movAv classify seqPal round0 lim0 checkFile addAlpha colPoints textField
-#' @importFrom leaflet %>% leaflet addTiles addCircleMarkers addCircles addPolylines addLabelOnlyMarkers labelOptions
+#' @importFrom leaflet %>% leaflet addProviderTiles addCircleMarkers addCircles addPolylines addLabelOnlyMarkers labelOptions
 #' @importFrom graphics hist plot lines par
 #' @importFrom utils tail
 #' @export
@@ -41,7 +41,11 @@
 #' @param smooth  Smoothing width passed to \code{berryFunctions::\link{movAv}}
 #'                for speed column. DEFAULT: 5
 #' @param plot_interactive Logical: plot leaflet map? DEFAULT: TRUE
+#' @param provider Character string: \code{leaflet::\link[leaflet]{providers}}
+#'                to be used for background map, e.g. "Esri.WorldImagery".
+#'                DEFAULT: OpenStreetMap"
 #' @param plot_static Logical: plot static graphs? DEFAULT: TRUE
+#' @param whiteline Logical: white background line in interactive map? DEFAULT: TRUE 
 #' @param bgmap   Static background map from \code{OSMscale::\link{pointsMap}}.
 #'                Plotting is done faster if provided. DEFAULT: NULL
 #' @param mfrow   Multiple figures \link{par}ameter. DEFAULT: c(2,2)
@@ -56,7 +60,9 @@ element=1,
 threshold_na=NA,
 smooth=9,
 plot_interactive=TRUE,
+provider="OpenStreetMap",
 plot_static=TRUE,
+whiteline=TRUE,
 bgmap=NULL,
 mfrow=c(2,2),
 keeppar=FALSE,
@@ -118,9 +124,9 @@ df$display <- paste0(berryFunctions::round0(df$speed_kmh,2,2), " kmh <br>",
                                   round0(df$run_dist_cum,2,2), " km <br>",
                      df$time, "<br>", round(df$lat,6), ", ", round(df$lon,6))
 
-map <- leaflet(df) %>% addTiles() %>%
-       addPolylines(~lon, ~lat, color="white", weight=15, opacity=1) %>%
-       addCircleMarkers(~lon, ~lat, popup=~display, stroke=F, color=~col,
+map <- leaflet(df) %>% addProviderTiles(leaflet::providers[[provider]])
+if(whiteline) map <- map %>% addPolylines(~lon, ~lat, color="white", weight=15, opacity=1)
+map <- map %>% addCircleMarkers(~lon, ~lat, popup=~display, stroke=F, color=~col,
                         fillOpacity=1, radius=6) %>%
        #addPolylines(~lon, ~lat) %>%
        addLabelOnlyMarkers(lng=df$lon[kmmarker], lat=df$lat[kmmarker],

@@ -5,8 +5,8 @@
 \title{Visualize GPX files}
 \usage{
 visGPX(file, df = NULL, element = 1, threshold_na = NA, smooth = 9,
-  plot_interactive = TRUE, plot_static = TRUE, bgmap = NULL,
-  mfrow = c(2, 2), keeppar = FALSE, ...)
+  plot_interactive = TRUE, provider = "OpenStreetMap", plot_static = TRUE,
+  whiteline = TRUE, bgmap = NULL, mfrow = c(2, 2), keeppar = FALSE, ...)
 }
 \arguments{
 \item{file}{GPX filename}
@@ -25,7 +25,13 @@ for speed column. DEFAULT: 5}
 
 \item{plot_interactive}{Logical: plot leaflet map? DEFAULT: TRUE}
 
+\item{provider}{Character string: \code{leaflet::\link[leaflet]{providers}}
+to be used for background map, e.g. "Esri.WorldImagery".
+DEFAULT: OpenStreetMap"}
+
 \item{plot_static}{Logical: plot static graphs? DEFAULT: TRUE}
+
+\item{whiteline}{Logical: white background line in interactive map? DEFAULT: TRUE}
 
 \item{bgmap}{Static background map from \code{OSMscale::\link{pointsMap}}.
 Plotting is done faster if provided. DEFAULT: NULL}
