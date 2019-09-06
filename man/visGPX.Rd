@@ -4,9 +4,10 @@
 \alias{visGPX}
 \title{Visualize GPX files}
 \usage{
-visGPX(file, df = NULL, element = 1, threshold_na = NA, smooth = 9,
-  plot_interactive = TRUE, provider = "OpenStreetMap", plot_static = TRUE,
-  whiteline = TRUE, bgmap = NULL, mfrow = c(2, 2), keeppar = FALSE, ...)
+visGPX(file, df = NULL, element = 1, wp_column = "link",
+  threshold_na = NA, smooth = 9, plot_interactive = TRUE,
+  provider = "OpenStreetMap", plot_static = TRUE, whiteline = TRUE,
+  bgmap = NULL, mfrow = c(2, 2), keeppar = FALSE, ...)
 }
 \arguments{
 \item{file}{GPX filename}
@@ -15,6 +16,8 @@ visGPX(file, df = NULL, element = 1, threshold_na = NA, smooth = 9,
 DEFAULT: NULL (internally generated from \code{file})}
 
 \item{element}{Numeric: Element in GPX tracks list to be used. DEFAULT: 1}
+
+\item{wp_column}{Column specifier for waypoints, e.g. "name". DEFAULT: "link"}
 
 \item{threshold_na}{Values above this speed are set to NA for smoothing.
 Use e.g. 15 (kmh) for implausible values when walking.

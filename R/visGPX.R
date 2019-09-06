@@ -35,6 +35,7 @@
 #' @param df      Optional data.frame with columns lon,lat,ele (num) + time (POSIXct)
 #'                DEFAULT: NULL (internally generated from \code{file})
 #' @param element Numeric: Element in GPX tracks list to be used. DEFAULT: 1
+#' @param wp_column Column specifier for waypoints, e.g. "name". DEFAULT: "link"
 #' @param threshold_na Values above this speed are set to NA for smoothing.
 #'                Use e.g. 15 (kmh) for implausible values when walking.
 #'                DEFAULT: NA (ignored)
@@ -57,6 +58,7 @@ visGPX <- function(
 file,
 df=NULL,
 element=1,
+wp_column="link",
 threshold_na=NA,
 smooth=9,
 plot_interactive=TRUE,
@@ -138,7 +140,7 @@ map <- map %>% addCircleMarkers(~lon, ~lat, popup=~display, stroke=F, color=~col
 
 if(!is.null(wp)) # add waypoints
   {
-  wp$display <- paste0("waypoint:<br>", wp$link, "<br>",
+  wp$display <- paste0("waypoint:<br>", wp[,wp_column], "<br>",
                        round(wp$lat,6), "\t", round(wp$lon,6),  "<br>",
                        round(as.numeric(wp$ele),1), "m")
   map <- map %>% addCircleMarkers(wp$lon, wp$lat, popup=wp$display, color="black")
